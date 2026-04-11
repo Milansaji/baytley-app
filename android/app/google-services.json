@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "329609266595",
+    "project_id": "baytley-properties",
+    "storage_bucket": "baytley-properties.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329609266595:android:b3d3b5ff54089b37360616",
+        "android_client_info": {
+          "package_name": "com.example.baytley"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "329609266595-fdvbje2d3tqatn6bljo7mvqk8fchh6do.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXc2bL7NKVN_JwWn8DG0jNZWygdtrcf4I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "329609266595-fdvbje2d3tqatn6bljo7mvqk8fchh6do.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
