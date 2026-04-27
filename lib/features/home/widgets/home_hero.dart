@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:baytley/features/profile/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../core/localization/app_locale.dart';
 
@@ -108,9 +109,8 @@ class HomeHero extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  const _NavIconBtn(icon: Icons.notifications_none_rounded),
                   const SizedBox(width: 8),
-                  const _NavIconBtn(icon: Icons.person_outline_rounded),
+                 
                   const SizedBox(width: 8),
                   _NavIconBtn(
                     icon: Icons.language_rounded,

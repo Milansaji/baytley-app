@@ -8,8 +8,8 @@ import '../../../core/localization/app_locale.dart';
 import '../models/blog_theme_model.dart';
 import '../widgets/blog_article_card.dart';
 import '../widgets/blog_error_state.dart';
-import '../widgets/blog_header_card.dart';
 import 'blog_reading_screen.dart';
+import 'saved_blogs_screen.dart';
 
 class BlogScreen extends StatelessWidget {
   const BlogScreen({super.key});
@@ -20,11 +20,36 @@ class BlogScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: context.blogScaffoldBackground,
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        title: Text(
+          context.t('Articles', 'المقالات'),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const SavedBlogsScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.bookmark_outline),
+            tooltip: context.t('Saved Articles', 'المقالات المحفوظة'),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const BlogHeaderCard(),
             Expanded(
               child: BlocBuilder<BlogBloc, BlogState>(
                 builder: (context, state) {
