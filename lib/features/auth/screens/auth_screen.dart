@@ -4,6 +4,7 @@ import '../../../core/localization/app_locale.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import 'signup_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -208,24 +209,38 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                _isSignIn = !_isSignIn;
-                              });
-                            },
-                            child: Text(
-                              _isSignIn
-                                  ? context.t(
-                                      'Don\'t have an account? Sign Up',
-                                      'ليس لديك حساب؟ أنشئ حسابًا',
-                                    )
-                                  : context.t(
-                                      'Already have an account? Sign In',
-                                      'لديك حساب بالفعل؟ سجل الدخول',
-                                    ),
+                          if (_isSignIn)
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SignupScreen(),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                context.t(
+                                  'Don\'t have an account? Sign Up',
+                                  'ليس لديك حساب؟ أنشئ حسابًا',
+                                ),
+                              ),
+                            )
+                          else
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                  _isSignIn = !_isSignIn;
+                                });
+                              },
+                              child: Text(
+                                context.t(
+                                  'Already have an account? Sign In',
+                                  'لديك حساب بالفعل؟ سجل الدخول',
+                                ),
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),

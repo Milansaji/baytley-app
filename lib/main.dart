@@ -7,6 +7,7 @@ import 'package:baytley/features/blog/bloc/blog_event.dart';
 import 'package:baytley/features/auth/bloc/auth_bloc.dart';
 import 'package:baytley/features/auth/bloc/auth_event.dart';
 import 'package:baytley/features/auth/bloc/auth_state.dart';
+import 'package:baytley/features/auth/bloc/signup_bloc.dart';
 import 'package:baytley/features/auth/screens/auth_screen.dart';
 import 'package:baytley/features/properties/bloc/property_bloc.dart';
 import 'package:baytley/features/properties/bloc/property_event.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => AuthBloc()..add(AuthCheckRequested())),
+        BlocProvider(create: (_) => SignupBloc()),
         BlocProvider(
           create: (_) => PropertyBloc()..add(FetchPropertiesEvent()),
         ),
