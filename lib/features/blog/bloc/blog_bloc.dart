@@ -42,7 +42,7 @@ class BlogBloc extends Bloc<BlogEvent, BlogState> {
     Emitter<BlogState> emit,
   ) async {
     try {
-      await _repository.updateBlog(event.blog);
+      await _repository.updateBlog(event.blog, oldImageUrl: event.oldImageUrl);
       add(FetchBlogsEvent());
     } catch (e) {
       emit(BlogError(e.toString()));

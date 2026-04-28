@@ -5,7 +5,7 @@ class TestimonialModel {
   final String name;
   final String role;
   final String content;
-  final String avatar;
+  final String avatarUrl;
   final String company;
   final int rating;
   final DateTime createdAt;
@@ -15,7 +15,7 @@ class TestimonialModel {
     required this.name,
     required this.role,
     required this.content,
-    required this.avatar,
+    this.avatarUrl = '',
     required this.company,
     required this.rating,
     required this.createdAt,
@@ -28,7 +28,7 @@ class TestimonialModel {
       name: data['name'] ?? '',
       role: data['role'] ?? '',
       content: data['content'] ?? '',
-      avatar: data['avatar'] ?? '',
+      avatarUrl: data['avatarUrl'] ?? data['avatar'] ?? '', // Support both old 'avatar' and new 'avatarUrl'
       company: data['company'] ?? '',
       rating: (data['rating'] as num?)?.toInt() ?? 5,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -40,7 +40,7 @@ class TestimonialModel {
       'name': name,
       'role': role,
       'content': content,
-      'avatar': avatar,
+      'avatarUrl': avatarUrl,
       'company': company,
       'rating': rating,
       'createdAt': Timestamp.fromDate(createdAt),

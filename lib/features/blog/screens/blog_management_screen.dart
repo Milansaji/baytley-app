@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/blog_bloc.dart';
 import '../bloc/blog_event.dart';
@@ -12,11 +11,16 @@ class BlogManagementScreen extends StatelessWidget {
   const BlogManagementScreen({super.key});
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: AppTheme.darkTheme,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(context.t('Manage Blogs', 'إدارة المدونات')),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        title: Text(
+          context.t('Manage Blogs', 'إدارة المدونات'),
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
           actions: [
             IconButton(
               icon: const Icon(Icons.add),
@@ -42,23 +46,27 @@ class BlogManagementScreen extends StatelessWidget {
                 );
               }
               return ListView.builder(
+                padding: const EdgeInsets.all(12),
                 itemCount: blogs.length,
                 itemBuilder: (context, index) {
                   final item = blogs[index];
-                  return ListTile(
-                    title: Text(item.title),
-                    subtitle: Text('${item.author} - ${item.category}'),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => AddEditBlogScreen(blog: item),
-                              ),
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    elevation: 1,
+                    child: ListTile(
+                      title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text('${item.author} - ${item.category}'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AddEditBlogScreen(blog: item),
+                                ),
                             );
                           },
                         ),
@@ -67,6 +75,7 @@ class BlogManagementScreen extends StatelessWidget {
                           onPressed: () => _confirmDelete(context, item),
                         ),
                       ],
+                    ),
                     ),
                   );
                 },
@@ -78,8 +87,7 @@ class BlogManagementScreen extends StatelessWidget {
             return const SizedBox.shrink();
           },
         ),
-      ),
-    );
+      );
   }
 
   void _confirmDelete(BuildContext context, BlogModel item) {

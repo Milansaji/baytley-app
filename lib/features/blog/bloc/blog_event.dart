@@ -11,8 +11,9 @@ class AddBlogEvent extends BlogEvent {
 
 class UpdateBlogEvent extends BlogEvent {
   final BlogModel blog;
-  UpdateBlogEvent(this.blog);
-}
+  final String? oldImageUrl;
+  
+  UpdateBlogEvent(this.blog, {this.oldImageUrl});}
 
 class DeleteBlogEvent extends BlogEvent {
   final String id;

@@ -11,8 +11,9 @@ class AddTestimonialEvent extends TestimonialEvent {
 
 class UpdateTestimonialEvent extends TestimonialEvent {
   final TestimonialModel testimonial;
-  UpdateTestimonialEvent(this.testimonial);
-}
+  final String? oldAvatarUrl;
+  
+  UpdateTestimonialEvent(this.testimonial, {this.oldAvatarUrl});}
 
 class DeleteTestimonialEvent extends TestimonialEvent {
   final String id;

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../bloc/upcoming_project_bloc.dart';
 import '../bloc/upcoming_project_event.dart';
 import '../models/upcoming_project_model.dart';
 import '../../../core/localization/app_locale.dart';
+import '../../../core/services/cloudinary_service.dart';
 
 class AddEditUpcomingProjectScreen extends StatefulWidget {
   final UpcomingProjectModel? project;
@@ -20,12 +23,15 @@ class _AddEditUpcomingProjectScreenState
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
-  late TextEditingController _imageController;
   late TextEditingController _locationController;
   late TextEditingController _completionController;
   late TextEditingController _featuresController;
   late TextEditingController _latController;
   late TextEditingController _lngController;
+  
+  File? _selectedImage;
+  String _imageUrl = '';
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -34,7 +40,7 @@ class _AddEditUpcomingProjectScreenState
     _descriptionController = TextEditingController(
       text: widget.project?.description ?? '',
     );
-    _imageController = TextEditingController(text: widget.project?.image ?? '');
+    _imageUrl = widget.project?.image ?? '';
     _locationController = TextEditingController(
       text: widget.project?.location ?? '',
     );
@@ -56,13 +62,44 @@ class _AddEditUpcomingProjectScreenState
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _imageController.dispose();
     _locationController.dispose();
     _completionController.dispose();
     _featuresController.dispose();
     _latController.dispose();
     _lngController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage(BuildContext context) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+      await _uploadImage();
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_selectedImage == null) return;
+
+    setState(() => _isUploading = true);
+    try {
+      final url = await CloudinaryService.uploadFile(_selectedImage!);
+      setState(() {
+        _imageUrl = url;
+        _isUploading = false;
+      });
+    } catch (e) {
+      setState(() => _isUploading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image: $e')),
+        );
+      }
+    }
   }
 
   void _save() {
@@ -72,7 +109,7 @@ class _AddEditUpcomingProjectScreenState
       id: widget.project?.id ?? '',
       title: _titleController.text,
       description: _descriptionController.text,
-      image: _imageController.text,
+      image: _imageUrl,
       location: _locationController.text,
       expectedCompletion: _completionController.text,
       features: _featuresController.text
@@ -126,12 +163,37 @@ class _AddEditUpcomingProjectScreenState
               ),
               maxLines: 3,
             ),
-            TextFormField(
-              controller: _imageController,
-              decoration: InputDecoration(
-                labelText: context.t('Image URL', 'رابط الصورة'),
+            GestureDetector(
+              onTap: () => _pickImage(context),
+              child: Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: _selectedImage != null
+                    ? Image.file(_selectedImage!, fit: BoxFit.cover)
+                    : _imageUrl.isNotEmpty
+                        ? Image.network(_imageUrl, fit: BoxFit.cover)
+                        : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.camera_alt,
+                                    size: 40, color: Colors.grey),
+                                SizedBox(height: 8),
+                                Text(context.t('Tap to select image',
+                                    'اضغط لاختيار صورة')),
+                              ],
+                            ),
+                          ),
               ),
             ),
+            if (_isUploading)
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: LinearProgressIndicator(),
+              ),
             TextFormField(
               controller: _locationController,
               decoration: InputDecoration(

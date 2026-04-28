@@ -6,6 +6,7 @@ class BlogModel {
   final String author;
   final String category;
   final String content;
+  final String imageUrl;
   final DateTime updatedAt;
 
   const BlogModel({
@@ -14,6 +15,7 @@ class BlogModel {
     required this.author,
     required this.category,
     required this.content,
+    this.imageUrl = '',
     required this.updatedAt,
   });
 
@@ -25,6 +27,7 @@ class BlogModel {
       author: data['author'] as String? ?? '',
       category: data['category'] as String? ?? '',
       content: data['content'] as String? ?? '',
+      imageUrl: data['imageUrl'] as String? ?? '',
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
@@ -35,6 +38,7 @@ class BlogModel {
       'author': author,
       'category': category,
       'content': content,
+      'imageUrl': imageUrl,
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
   }

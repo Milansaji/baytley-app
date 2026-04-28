@@ -45,7 +45,7 @@ class TestimonialBloc extends Bloc<TestimonialEvent, TestimonialState> {
     Emitter<TestimonialState> emit,
   ) async {
     try {
-      await _repository.updateTestimonial(event.testimonial);
+      await _repository.updateTestimonial(event.testimonial, oldAvatarUrl: event.oldAvatarUrl);
       add(FetchTestimonialsEvent());
     } catch (e) {
       emit(TestimonialError(e.toString()));

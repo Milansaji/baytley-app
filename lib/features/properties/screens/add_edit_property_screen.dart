@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../data/models/property_model.dart';
 import '../bloc/property_bloc.dart';
 import '../bloc/property_event.dart';
 import '../../../core/localization/app_locale.dart';
+import '../../../core/services/cloudinary_service.dart';
 
 class AddEditPropertyScreen extends StatefulWidget {
   final PropertyModel? property;
@@ -18,7 +21,6 @@ class _AddEditPropertyScreenState extends State<AddEditPropertyScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
-  late TextEditingController _imageController;
   late TextEditingController _priceController;
   late TextEditingController _locationController;
   late TextEditingController _typeController;
@@ -30,6 +32,10 @@ class _AddEditPropertyScreenState extends State<AddEditPropertyScreen> {
   late TextEditingController _latController;
   late TextEditingController _lngController;
   late bool _isFeatured;
+  
+  File? _selectedImage;
+  String _imageUrl = '';
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -39,9 +45,6 @@ class _AddEditPropertyScreenState extends State<AddEditPropertyScreen> {
     );
     _descriptionController = TextEditingController(
       text: widget.property?.description ?? '',
-    );
-    _imageController = TextEditingController(
-      text: widget.property?.image ?? '',
     );
     _priceController = TextEditingController(
       text: widget.property?.price ?? '',
@@ -78,7 +81,6 @@ class _AddEditPropertyScreenState extends State<AddEditPropertyScreen> {
   void dispose() {
     _titleController.dispose();
     _descriptionController.dispose();
-    _imageController.dispose();
     _priceController.dispose();
     _locationController.dispose();
     _typeController.dispose();
@@ -99,7 +101,7 @@ class _AddEditPropertyScreenState extends State<AddEditPropertyScreen> {
       id: widget.property?.id ?? '',
       title: _titleController.text,
       description: _descriptionController.text,
-      image: _imageController.text,
+      image: _imageUrl,
       price: _priceController.text,
       location: _locationController.text,
       type: _typeController.text,
@@ -122,6 +124,38 @@ class _AddEditPropertyScreenState extends State<AddEditPropertyScreen> {
     }
 
     Navigator.pop(context);
+  }
+
+  Future<void> _pickImage(BuildContext context) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+      await _uploadImage();
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_selectedImage == null) return;
+
+    setState(() => _isUploading = true);
+    try {
+      final url = await CloudinaryService.uploadFile(_selectedImage!);
+      setState(() {
+        _imageUrl = url;
+        _isUploading = false;
+      });
+    } catch (e) {
+      setState(() => _isUploading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -154,12 +188,37 @@ class _AddEditPropertyScreenState extends State<AddEditPropertyScreen> {
               ),
               maxLines: 3,
             ),
-            TextFormField(
-              controller: _imageController,
-              decoration: InputDecoration(
-                labelText: context.t('Image URL', 'رابط الصورة'),
+            GestureDetector(
+              onTap: () => _pickImage(context),
+              child: Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: _selectedImage != null
+                    ? Image.file(_selectedImage!, fit: BoxFit.cover)
+                    : _imageUrl.isNotEmpty
+                        ? Image.network(_imageUrl, fit: BoxFit.cover)
+                        : Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.camera_alt,
+                                    size: 40, color: Colors.grey),
+                                SizedBox(height: 8),
+                                Text(context.t('Tap to select image',
+                                    'اضغط لاختيار صورة')),
+                              ],
+                            ),
+                          ),
               ),
             ),
+            if (_isUploading)
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 8),
+                child: LinearProgressIndicator(),
+              ),
             TextFormField(
               controller: _priceController,
               decoration: InputDecoration(

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/testimonial_bloc.dart';
-import '../bloc/testimonial_event.dart';
 import '../bloc/testimonial_state.dart';
 import '../models/testimonial_model.dart';
 import '../../../core/localization/app_locale.dart';
 import 'add_edit_testimonial_screen.dart';
+import '../bloc/testimonial_event.dart';
 
 class TestimonialManagementScreen extends StatelessWidget {
   const TestimonialManagementScreen({super.key});
@@ -49,10 +49,10 @@ class TestimonialManagementScreen extends StatelessWidget {
                 final item = testimonials[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: item.avatar.isNotEmpty
-                        ? NetworkImage(item.avatar)
+                    backgroundImage: item.avatarUrl.isNotEmpty
+                        ? NetworkImage(item.avatarUrl)
                         : null,
-                    child: item.avatar.isEmpty
+                    child: item.avatarUrl.isEmpty
                         ? const Icon(Icons.person)
                         : null,
                   ),

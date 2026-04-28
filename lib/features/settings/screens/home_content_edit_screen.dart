@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../data/settings_repository.dart';
 import '../models/home_content_model.dart';
 import '../../../core/localization/app_locale.dart';
+import '../../../core/services/cloudinary_service.dart';
 
 class HomeContentEditScreen extends StatefulWidget {
   const HomeContentEditScreen({super.key});
@@ -16,11 +19,14 @@ class _HomeContentEditScreenState extends State<HomeContentEditScreen> {
   bool _isLoading = true;
 
   late TextEditingController _featuredTitleController;
-  late TextEditingController _heroBgController;
   late TextEditingController _heroSubtitleController;
   late TextEditingController _heroTitleController;
   late TextEditingController _heroVideoController;
   late TextEditingController _upcomingTitleController;
+
+  File? _selectedHeroImage;
+  String _heroBgUrl = '';
+  bool _isUploadingHero = false;
 
   @override
   void initState() {
@@ -34,7 +40,7 @@ class _HomeContentEditScreenState extends State<HomeContentEditScreen> {
       _featuredTitleController = TextEditingController(
         text: data.featuredPropertiesTitle,
       );
-      _heroBgController = TextEditingController(text: data.heroBackgroundImage);
+      _heroBgUrl = data.heroBackgroundImage;
       _heroSubtitleController = TextEditingController(text: data.heroSubtitle);
       _heroTitleController = TextEditingController(text: data.heroTitle);
       _heroVideoController = TextEditingController(text: data.heroVideo);
@@ -45,10 +51,41 @@ class _HomeContentEditScreenState extends State<HomeContentEditScreen> {
     });
   }
 
+  Future<void> _pickHeroImage(BuildContext context) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _selectedHeroImage = File(pickedFile.path);
+      });
+      await _uploadHeroImage();
+    }
+  }
+
+  Future<void> _uploadHeroImage() async {
+    if (_selectedHeroImage == null) return;
+
+    setState(() => _isUploadingHero = true);
+    try {
+      final url = await CloudinaryService.uploadFile(_selectedHeroImage!);
+      setState(() {
+        _heroBgUrl = url;
+        _isUploadingHero = false;
+      });
+    } catch (e) {
+      setState(() => _isUploadingHero = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image: $e')),
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
     _featuredTitleController.dispose();
-    _heroBgController.dispose();
     _heroSubtitleController.dispose();
     _heroTitleController.dispose();
     _heroVideoController.dispose();
@@ -62,7 +99,7 @@ class _HomeContentEditScreenState extends State<HomeContentEditScreen> {
     setState(() => _isLoading = true);
     final content = HomeContentModel(
       featuredPropertiesTitle: _featuredTitleController.text,
-      heroBackgroundImage: _heroBgController.text,
+      heroBackgroundImage: _heroBgUrl,
       heroSubtitle: _heroSubtitleController.text,
       heroTitle: _heroTitleController.text,
       heroVideo: _heroVideoController.text,
@@ -106,15 +143,39 @@ class _HomeContentEditScreenState extends State<HomeContentEditScreen> {
                     ),
                     maxLines: 2,
                   ),
-                  TextFormField(
-                    controller: _heroBgController,
-                    decoration: InputDecoration(
-                      labelText: context.t(
-                        'Hero Background Image URL',
-                        'رابط صورة الخلفية',
+                  const SizedBox(height: 16),
+                  Text(context.t('Hero Background Image', 'صورة الخلفية')),
+                  GestureDetector(
+                    onTap: () => _pickHeroImage(context),
+                    child: Container(
+                      height: 200,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      child: _selectedHeroImage != null
+                          ? Image.file(_selectedHeroImage!, fit: BoxFit.cover)
+                          : _heroBgUrl.isNotEmpty
+                              ? Image.network(_heroBgUrl, fit: BoxFit.cover)
+                              : Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.camera_alt,
+                                          size: 40, color: Colors.grey),
+                                      SizedBox(height: 8),
+                                      Text(context.t('Tap to select image',
+                                          'اضغط لاختيار صورة')),
+                                    ],
+                                  ),
+                                ),
                     ),
                   ),
+                  if (_isUploadingHero)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      child: LinearProgressIndicator(),
+                    ),
                   TextFormField(
                     controller: _heroVideoController,
                     decoration: InputDecoration(
